@@ -66,7 +66,7 @@ export function TokenSelector({ selectedToken, excludeToken, onSelect, onClose }
                 })
                 .map((token) => {
                   // Check if this token is the excluded token for disabled state
-                  const isExcluded = excludeToken && token.address.toLowerCase() === excludeToken.address.toLowerCase();
+                  const isExcluded = Boolean(excludeToken && token.address.toLowerCase() === excludeToken.address.toLowerCase());
                   
                   return (
                     <button
