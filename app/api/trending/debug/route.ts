@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
           text: c.text.substring(0, 100) + '...',
           timestamp: c.timestamp 
         })),
-        tokenMentions
+        allTokenMentions: tokenMentions
       }
     });
 

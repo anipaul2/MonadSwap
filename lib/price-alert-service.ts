@@ -1,4 +1,4 @@
-import { sendNotification } from './notifs';
+import { sendFrameNotification } from './notifs';
 import { Redis } from '@upstash/redis';
 
 // Redis client setup
@@ -178,7 +178,11 @@ async function checkSingleAlert(alert: PriceAlert): Promise<void> {
       // Send notification
       const message = `🚨 Price Alert: ${alert.tokenSymbol} is now $${currentPrice.toFixed(6)} (${alert.condition} your target of $${alert.targetPrice})`;
       
-      await sendNotification(alert.userId, message);
+      await sendFrameNotification({
+        fid: parseInt(alert.userId),
+        title: "Price Alert",
+        body: message
+      });
 
       // Update lastTriggered timestamp
       alert.lastTriggered = new Date().toISOString();
