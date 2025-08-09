@@ -45,7 +45,7 @@ export function SwapButton({
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletRetryCount, setWalletRetryCount] = useState(0);
 
-  // Auto-connect to Farcaster wallet on mount
+  // Auto-connect to Farcaster wallet on mount - STRICT MiniApp only
   useEffect(() => {
     console.log('🔗 Wallet connection check:', {
       isConnected,
@@ -57,8 +57,19 @@ export function SwapButton({
 
     if (!isConnected && connectors.length > 0 && !isConnecting) {
       setIsConnecting(true);
-      const farcasterConnector = connectors[0]; // Only Farcaster connector should be available
-      console.log('Auto-connecting to Farcaster wallet...');
+      
+      // STRICT: Only use Farcaster MiniApp connector - ignore browser extensions
+      const farcasterConnector = connectors.find(c => 
+        c.name === 'Farcaster MiniApp' || c.id === 'farcasterMiniApp'
+      );
+      
+      if (!farcasterConnector) {
+        console.error('❌ Farcaster MiniApp connector not found. Available:', connectors.map(c => c.name));
+        setIsConnecting(false);
+        return;
+      }
+      
+      console.log('Auto-connecting to Farcaster wallet ONLY...');
       
       const connectWallet = async () => {
         try {

@@ -9,7 +9,7 @@ export const config = createConfig({
     [monadTestnet.id]: http('https://testnet-rpc.monad.xyz'),
   },
   connectors: [
-    miniAppConnector() // Only Farcaster miniapp connector
+    miniAppConnector() // STRICT: Only Farcaster miniapp connector - no browser extensions
   ],
 })
 

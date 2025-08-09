@@ -188,25 +188,61 @@ export function SwapForm() {
   };
 
   const handleShare = async () => {
-    if (!fromToken || !toToken || !fromAmount || !actions) return;
+    if (!fromToken || !toToken || !fromAmount || !actions) {
+      console.error('❌ Missing required data for sharing:', { 
+        hasFromToken: !!fromToken, 
+        hasToToken: !!toToken, 
+        hasAmount: !!fromAmount, 
+        hasActions: !!actions 
+      });
+      return;
+    }
 
     // Use hardcoded production URL to ensure sharing works
     const appUrl = 'https://monadswap-psi.vercel.app';
     
-    // Create engaging share text with actual swap details
-    const shareText = `🔥 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} using MonadSwap! 
+    // Create engaging share text with actual swap details (keep it concise for cast limits)
+    const shareText = `🔥 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} using MonadSwap!
 
 Swap now: ${appUrl} 🚀`;
     
     try {
-      console.log('📤 Sharing swap on Farcaster...', { shareText, appUrl });
-      await actions.composeCast({
+      console.log('📤 Attempting to share swap on Farcaster...', { 
+        shareText, 
+        appUrl, 
+        textLength: shareText.length 
+      });
+      
+      // Use proper composeCast API according to MiniApp SDK
+      const result = await actions.composeCast({
         text: shareText,
         embeds: [appUrl]
       });
-      console.log('✅ Share cast composed successfully');
+      
+      console.log('✅ Share cast composed successfully:', result);
+      
+      // Visual feedback for user
+      const shareButton = document.querySelector('[data-share-button]');
+      if (shareButton) {
+        const originalText = shareButton.textContent;
+        shareButton.textContent = '✅ Shared!';
+        setTimeout(() => {
+          shareButton.textContent = originalText;
+        }, 2000);
+      }
+      
     } catch (error) {
       console.error('❌ Error sharing swap:', error);
+      
+      // Show error to user
+      const shareButton = document.querySelector('[data-share-button]');
+      if (shareButton) {
+        const originalText = shareButton.textContent;
+        shareButton.textContent = '❌ Share failed';
+        setTimeout(() => {
+          shareButton.textContent = originalText;
+        }, 3000);
+      }
     }
   };
 
@@ -359,6 +395,7 @@ Swap now: ${appUrl} 🚀`;
               
               <button
                 onClick={handleShare}
+                data-share-button
                 className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500/80 to-blue-500/80 hover:from-purple-600/80 hover:to-blue-600/80 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-lg hover:shadow-xl active:scale-95"
               >
                 <Share2 className="w-3.5 h-3.5" />

@@ -12,14 +12,7 @@ export { APP_URL };
 export const MONAD_TESTNET_CHAIN_ID = 10143;
 export const MONAD_RPC_URL = process.env.NEXT_PUBLIC_MONAD_RPC_URL || "https://testnet-rpc.monad.xyz";
 
-// Kuru Contract Addresses (Monad Testnet)
-export const KURU_CONTRACTS = {
-  ROUTER: "0xc816865f172d640d93712C68a7E1F83F3fA63235",
-  MARGIN_ACCOUNT: "0x4B186949F31FCA0aD08497Df9169a6bEbF0e26ef",
-  FORWARDER: "0x350678D87BAa7f513B262B7273ad8Ccec6FF0f78",
-  DEPLOYER: "0x67a4e43C7Ce69e24d495A39c43489BC7070f009B",
-  UTILS: "0x9E50D9202bEc0D046a75048Be8d51bBa93386Ade"
-} as const;
+// NOTE: Kuru contracts removed - MonadSwap now uses Monorail exclusively
 
 // Official Tokens (Monad Testnet)
 export const TOKENS = {
@@ -34,12 +27,6 @@ export const TOKENS = {
     symbol: "USDC",
     decimals: 6,
     name: "USD Coin"
-  },
-  kUSDC: {
-    address: "0xf817257fed379853cDe0fa4F97AB987181B1E5Ea",
-    symbol: "kUSDC", 
-    decimals: 6,
-    name: "Kuru USD Coin"
   },
   USDT: {
     address: "0x88b8E2161DEDC77EF4ab7585569D2415a1C1055D", 

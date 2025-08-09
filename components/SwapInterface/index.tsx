@@ -12,42 +12,78 @@ export function SwapInterface() {
   const { context, isSDKLoaded } = useFrame();
   const [activeTab, setActiveTab] = useState<'swap' | 'notifications' | 'trending'>('swap');
   const [showAddFramePrompt, setShowAddFramePrompt] = useState(false);
+  
+  // Listen for successful frame addition (complementary to webhook)
+  useEffect(() => {
+    const handleFrameAdded = () => {
+      if (context?.user?.fid) {
+        console.log('🎉 Frame added successfully for user:', context.user.fid);
+        localStorage.setItem(`frame_added_${context.user.fid}`, 'true');
+        localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'completed');
+      }
+    };
 
-  // Check if user has already added the frame
+    // Listen for frame events if available
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('farcaster-frame-added', handleFrameAdded);
+      return () => window.removeEventListener('farcaster-frame-added', handleFrameAdded);
+    }
+  }, [context?.user?.fid]);
+
+  // Check if user has already been prompted about adding the frame
   useEffect(() => {
     if (context?.user?.fid && isSDKLoaded) {
-      // Check local storage to see if user has already been prompted
+      // Check if user has been prompted before (separate from actually adding frame)
       const hasBeenPrompted = localStorage.getItem(`addframe_prompted_${context.user.fid}`);
-      if (!hasBeenPrompted) {
-        // Show prompt immediately on first visit
-        setShowAddFramePrompt(true);
+      const hasAddedFrame = localStorage.getItem(`frame_added_${context.user.fid}`);
+      
+      console.log('🔔 AddFrame check:', { 
+        fid: context.user.fid, 
+        hasBeenPrompted: !!hasBeenPrompted,
+        hasAddedFrame: !!hasAddedFrame 
+      });
+      
+      // Only show prompt if user hasn't been prompted AND hasn't added frame
+      if (!hasBeenPrompted && !hasAddedFrame) {
+        // Show prompt after a short delay for better UX
+        setTimeout(() => {
+          setShowAddFramePrompt(true);
+        }, 2000);
       }
     }
   }, [context?.user?.fid, isSDKLoaded]);
 
-  // Handle addFrame action
+  // Handle addFrame action - this triggers the native addFrame flow
   const handleAddFrame = async () => {
     try {
-      console.log('🔔 Prompting user to add frame...');
+      console.log('🔔 Initiating addFrame flow for user:', context?.user?.fid);
+      
+      // The SDK addFrame() will trigger the native flow
+      // When completed, our webhook will receive the frame_added event
       await sdk.actions.addFrame();
       
-      // Mark as prompted
+      // Mark as prompted (user took action)
       if (context?.user?.fid) {
         localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'true');
+        console.log('✅ AddFrame flow initiated, marked as prompted');
       }
       
       setShowAddFramePrompt(false);
-      console.log('✅ addFrame prompt shown successfully');
+      
     } catch (error) {
       console.error('❌ Error showing addFrame prompt:', error);
-      // Still hide the prompt even if there's an error
+      // Still hide the prompt to avoid infinite loops
+      if (context?.user?.fid) {
+        localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'true');
+      }
       setShowAddFramePrompt(false);
     }
   };
 
   const dismissAddFramePrompt = () => {
+    console.log('⏭️ User dismissed addFrame prompt');
     if (context?.user?.fid) {
-      localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'true');
+      localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'dismissed');
     }
     setShowAddFramePrompt(false);
   };
