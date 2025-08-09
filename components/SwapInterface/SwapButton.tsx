@@ -52,19 +52,51 @@ export function SwapButton({
       hasWalletClient: !!walletClient,
       connectorsCount: connectors.length,
       isConnecting,
-      connectorNames: connectors.map(c => c.name)
+      connectorNames: connectors.map(c => c.name),
+      userAgent: navigator?.userAgent,
+      isFarcasterSDKAvailable: !!sdk.wallet?.ethProvider,
+      windowEthereum: !!window.ethereum
     });
 
     if (!isConnected && connectors.length > 0 && !isConnecting) {
       setIsConnecting(true);
       
       // STRICT: Only use Farcaster MiniApp connector - ignore browser extensions
+      // More flexible detection for different environments
       const farcasterConnector = connectors.find(c => 
-        c.name === 'Farcaster MiniApp' || c.id === 'farcasterMiniApp'
+        c.name === 'Farcaster MiniApp' || 
+        c.id === 'farcasterMiniApp' ||
+        c.name?.toLowerCase().includes('farcaster') ||
+        c.id?.toLowerCase().includes('farcaster')
       );
       
+      console.log('🔍 Connector search details:', {
+        totalConnectors: connectors.length,
+        connectorNames: connectors.map(c => c.name),
+        connectorIds: connectors.map(c => c.id),
+        foundFarcaster: !!farcasterConnector,
+        farcasterConnectorName: farcasterConnector?.name,
+        farcasterConnectorId: farcasterConnector?.id
+      });
+      
       if (!farcasterConnector) {
-        console.error('❌ Farcaster MiniApp connector not found. Available:', connectors.map(c => c.name));
+        console.error('❌ Farcaster MiniApp connector not found. Available:', 
+          connectors.map(c => ({ name: c.name, id: c.id }))
+        );
+        
+        // FALLBACK: If not in Farcaster environment, try any available connector
+        const isFarcasterEnvironment = !!sdk.wallet?.ethProvider;
+        if (!isFarcasterEnvironment && connectors.length > 0) {
+          console.log('⚠️ Not in Farcaster environment, using fallback connector:', connectors[0].name);
+          
+          try {
+            connect({ connector: connectors[0] });
+            console.log('✅ Connected to fallback wallet:', connectors[0].name);
+          } catch (error) {
+            console.error('❌ Failed to connect to fallback wallet:', error);
+          }
+        }
+        
         setIsConnecting(false);
         return;
       }
@@ -195,12 +227,17 @@ export function SwapButton({
 
   // No Farcaster wallet available
   if (!isConnected) {
+    // Check if we're in a Farcaster environment
+    const isFarcasterEnvironment = !!sdk.wallet?.ethProvider;
+    
     return (
       <button
         disabled
-        className="w-full bg-white/10 text-white/50 font-semibold py-3 px-4 rounded-xl cursor-not-allowed"
+        className="w-full bg-white/10 text-white/50 font-semibold py-3 px-4 rounded-xl cursor-not-allowed text-center text-sm"
       >
-        Farcaster Wallet Required
+        {isFarcasterEnvironment ? 
+          'Farcaster Wallet Required' : 
+          '📱 Open this in Farcaster app to swap'}
       </button>
     );
   }
