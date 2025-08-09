@@ -190,13 +190,16 @@ export function SwapForm() {
   const handleShare = async () => {
     if (!fromToken || !toToken || !fromAmount || !actions) return;
 
-    const appUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+    // Use hardcoded production URL to ensure sharing works
+    const appUrl = 'https://monadswap-psi.vercel.app';
     
-    // Create engaging share text
-    const shareText = `🚀 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} on @MonadSwap! \n\nComing to Monad Testnet 🟣\n\nTry it yourself 👇`;
+    // Create engaging share text with actual swap details
+    const shareText = `🔥 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} using MonadSwap! 
+
+Swap now: ${appUrl} 🚀`;
     
     try {
-      console.log('📤 Sharing swap on Farcaster...');
+      console.log('📤 Sharing swap on Farcaster...', { shareText, appUrl });
       await actions.composeCast({
         text: shareText,
         embeds: [appUrl]
