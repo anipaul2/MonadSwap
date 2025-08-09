@@ -3,7 +3,11 @@ import { APP_URL } from "../../../lib/constants";
 
 export async function GET() {
   const farcasterConfig = {
-    // TODO: Add your own account association
+    accountAssociation: {
+      header: "eyJmaWQiOjE1MTA0LCJ0eXBlIjoiYXV0aCIsImtleSI6IjB4Mzk4NjYyNDRGNGUyN0UxODZGRDAxREMyMGY1NmQzNDdFNmNCRjRjNSJ9",
+      payload: "eyJkb21haW4iOiJtb25hZHN3YXAtcHNpLnZlcmNlbC5hcHAifQ",
+      signature: "kdaFmMDSSXmNz5iHX0opkUF6aqxc7lXXej2AutKrXzVeVDVF5st3Uxzq0TQL0tsUbUTKqk8J/bk5oTTDNWQK1Rw="
+    },
     miniapp: {
       version: "1",
       name: "MonadSwap",
