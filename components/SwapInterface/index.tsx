@@ -33,18 +33,20 @@ export function SwapInterface() {
   // Check if user has already been prompted about adding the frame
   useEffect(() => {
     if (context?.user?.fid && isSDKLoaded) {
-      // Check if user has been prompted before (separate from actually adding frame)
+      // Check multiple storage keys for better persistence
       const hasBeenPrompted = localStorage.getItem(`addframe_prompted_${context.user.fid}`);
       const hasAddedFrame = localStorage.getItem(`frame_added_${context.user.fid}`);
+      const hasDismissed = localStorage.getItem(`addframe_dismissed_${context.user.fid}`);
       
       console.log('🔔 AddFrame check:', { 
         fid: context.user.fid, 
         hasBeenPrompted: !!hasBeenPrompted,
-        hasAddedFrame: !!hasAddedFrame 
+        hasAddedFrame: !!hasAddedFrame,
+        hasDismissed: !!hasDismissed
       });
       
-      // Only show prompt if user hasn't been prompted AND hasn't added frame
-      if (!hasBeenPrompted && !hasAddedFrame) {
+      // Don't show if user has added frame, been prompted, or dismissed
+      if (!hasBeenPrompted && !hasAddedFrame && !hasDismissed) {
         // Show prompt after a short delay for better UX
         setTimeout(() => {
           setShowAddFramePrompt(true);
@@ -83,7 +85,8 @@ export function SwapInterface() {
   const dismissAddFramePrompt = () => {
     console.log('⏭️ User dismissed addFrame prompt');
     if (context?.user?.fid) {
-      localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'dismissed');
+      localStorage.setItem(`addframe_dismissed_${context.user.fid}`, 'true');
+      localStorage.setItem(`addframe_prompted_${context.user.fid}`, 'true');
     }
     setShowAddFramePrompt(false);
   };
@@ -198,7 +201,7 @@ export function SwapInterface() {
               
               <h3 className="text-white text-xl font-bold mb-2">🚀 Stay Ahead of Markets!</h3>
               <p className="text-white/90 text-sm mb-4 leading-relaxed font-medium">
-                Add MonadSwap to get instant notifications for:
+                Add MonadSwap for all of these features:
               </p>
               
               {/* Benefits List */}
@@ -213,12 +216,8 @@ export function SwapInterface() {
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0"></div>
-                  <span className="text-white/80">⚡ Market opportunities from friends</span>
+                  <span className="text-white/80">🪙 Get exposure to every token in Monad right now for swapping</span>
                 </div>
-              </div>
-
-              <div className="text-xs text-white/50 mb-6 bg-white/5 rounded-lg p-3">
-                💡 Adding the frame enables push notifications to your Farcaster feed
               </div>
               
               <div className="flex gap-3">
@@ -226,7 +225,7 @@ export function SwapInterface() {
                   onClick={handleAddFrame}
                   className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 active:scale-95"
                 >
-                  🔔 Add & Enable Alerts
+                  Add
                 </button>
                 <button
                   onClick={dismissAddFramePrompt}
