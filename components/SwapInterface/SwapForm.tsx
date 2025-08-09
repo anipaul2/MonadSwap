@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useWalletClient, useSwitchChain } from 'wagmi';
-import { ChevronDownIcon, ArrowUpDownIcon, XIcon, Share2 } from 'lucide-react';
+import { ChevronDownIcon, ArrowUpDownIcon, XIcon } from 'lucide-react';
 import { useFrame } from '@/components/farcaster-provider';
 import { MONAD_TESTNET_CHAIN_ID } from '@/lib/constants';
 import { TokenSelector } from './TokenSelector';
 import { SwapButton } from './SwapButton';
 import { WalletStatus } from './WalletStatus';
+import { ShareButton } from '@/components/ShareButton';
 import { useMonorailBalances, useMonorailTokenBalance } from '@/hooks/useMonorailBalances';
 import { useMonorailSwap } from '@/hooks/useMonorailSwap';
 import { useMonorailTokens } from '@/hooks/useMonorailTokens';
@@ -197,108 +198,21 @@ export function SwapForm() {
     setSuccessTxHash('');
   };
 
-  const handleShare = async () => {
-    console.log('🔘 Share button clicked!');
-    
-    if (!fromToken || !toToken || !fromAmount) {
-      console.error('❌ Missing swap data for sharing:', { 
-        hasFromToken: !!fromToken, 
-        hasToToken: !!toToken, 
-        hasAmount: !!fromAmount
-      });
-      return;
-    }
+  // Create share cast content for successful swaps
+  const createShareCast = (): { text: string; embeds: [string] } | null => {
+    if (!fromToken || !toToken || !fromAmount) return null;
 
-    if (!actions) {
-      console.error('❌ Farcaster SDK actions not available');
-      return;
-    }
-
-    // Use production URL for sharing
     const appUrl = 'https://monadswap-psi.vercel.app';
-    
-    // Create engaging share text like the Pokemon app example
     const shareText = `🔥 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} using MonadSwap!
 
 "Smooth DeFi trading on Monad Testnet with social price alerts and trending tokens from my network."
 
 Swap tokens now: ${appUrl}`;
-    
-    try {
-      console.log('📤 Calling composeCast...', { 
-        shareText, 
-        appUrl, 
-        textLength: shareText.length,
-        hasActions: !!actions,
-        actionsType: typeof actions
-      });
-      
-      // Call composeCast with the correct signature
-      const result = await actions.composeCast({
-        text: shareText,
-        embeds: [appUrl] // First try with simple string array
-      });
-      
-      console.log('✅ composeCast result:', result);
-      
-      // Show success feedback
-      const shareButton = document.querySelector('[data-share-button]') as HTMLButtonElement;
-      if (shareButton) {
-        const originalText = shareButton.textContent;
-        shareButton.textContent = '✅ Shared!';
-        shareButton.style.background = 'linear-gradient(to right, #10b981, #059669)';
-        setTimeout(() => {
-          shareButton.textContent = originalText;
-          shareButton.style.background = '';
-        }, 2000);
-      }
-      
-    } catch (error) {
-      console.error('❌ composeCast error details:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        errorStack: error instanceof Error ? error.stack : 'No stack',
-        hasActions: !!actions,
-        actionsKeys: actions ? Object.keys(actions) : 'no actions'
-      });
-      
-      // Try alternative approach with object format
-      try {
-        console.log('🔄 Trying alternative composeCast format...');
-        const altResult = await actions.composeCast({
-          text: shareText,
-          embeds: [{ url: appUrl }] // Try as object format
-        } as any); // Use any to bypass TS checking
-        console.log('✅ Alternative composeCast succeeded:', altResult);
-        
-        // Show success feedback
-        const shareButton = document.querySelector('[data-share-button]') as HTMLButtonElement;
-        if (shareButton) {
-          const originalText = shareButton.textContent;
-          shareButton.textContent = '✅ Shared!';
-          shareButton.style.background = 'linear-gradient(to right, #10b981, #059669)';
-          setTimeout(() => {
-            shareButton.textContent = originalText;
-            shareButton.style.background = '';
-          }, 2000);
-        }
-        
-      } catch (altError) {
-        console.error('❌ Alternative composeCast also failed:', altError);
-        
-        // Show error feedback
-        const shareButton = document.querySelector('[data-share-button]') as HTMLButtonElement;
-        if (shareButton) {
-          const originalText = shareButton.textContent;
-          shareButton.textContent = '❌ Share failed';
-          shareButton.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
-          setTimeout(() => {
-            shareButton.textContent = originalText;
-            shareButton.style.background = '';
-          }, 3000);
-        }
-      }
-    }
+
+    return {
+      text: shareText,
+      embeds: [appUrl]
+    };
   };
 
   return (
@@ -448,14 +362,13 @@ Swap tokens now: ${appUrl}`;
                 </a>
               )}
               
-              <button
-                onClick={handleShare}
-                data-share-button
-                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500/80 to-blue-500/80 hover:from-purple-600/80 hover:to-blue-600/80 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-lg hover:shadow-xl active:scale-95"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                Share on Farcaster
-              </button>
+              {createShareCast() && (
+                <ShareButton
+                  cast={createShareCast()!}
+                  buttonText="Share on Farcaster"
+                  showIcon={true}
+                />
+              )}
             </div>
             
             <p className="text-white/50 text-xs mt-2">
