@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     const allMentions = results.flatMap(r => r.mentions);
-    const uniqueTokens = [...new Set(allMentions)];
+    const uniqueTokens = Array.from(new Set(allMentions));
 
     return NextResponse.json({
       success: true,
