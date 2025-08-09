@@ -17,7 +17,18 @@ export function SwapForm() {
   const { address, isConnected, chain } = useAccount();
   const { data: walletClient } = useWalletClient();
   const { switchChain } = useSwitchChain();
-  const { actions } = useFrame();
+  const { actions, context, isSDKLoaded } = useFrame();
+  
+  // Debug actions availability
+  useEffect(() => {
+    console.log('🔧 SwapForm SDK Debug:', {
+      hasActions: !!actions,
+      isSDKLoaded,
+      hasContext: !!context,
+      actionsKeys: actions ? Object.keys(actions) : 'no actions',
+      composeCastAvailable: actions?.composeCast ? 'yes' : 'no'
+    });
+  }, [actions, context, isSDKLoaded]);
 
   const [fromToken, setFromToken] = useState<MonorailToken | null>(null);
   const [toToken, setToToken] = useState<MonorailToken | null>(null);
@@ -31,9 +42,8 @@ export function SwapForm() {
   const [successTxHash, setSuccessTxHash] = useState('');
 
   // Monorail tokens and balances
-  const { tokens, isLoading: tokensLoading, error: tokensError } = useMonorailTokens();
+  const { tokens } = useMonorailTokens();
   const { balance: fromBalance, isLoading: fromBalanceLoading } = useMonorailTokenBalance(fromToken?.address || '');
-  const { balance: toBalance, isLoading: toBalanceLoading } = useMonorailTokenBalance(toToken?.address || '');
   const { refreshBalances } = useMonorailBalances();
 
   // Monorail swap hooks
@@ -188,60 +198,105 @@ export function SwapForm() {
   };
 
   const handleShare = async () => {
-    if (!fromToken || !toToken || !fromAmount || !actions) {
-      console.error('❌ Missing required data for sharing:', { 
+    console.log('🔘 Share button clicked!');
+    
+    if (!fromToken || !toToken || !fromAmount) {
+      console.error('❌ Missing swap data for sharing:', { 
         hasFromToken: !!fromToken, 
         hasToToken: !!toToken, 
-        hasAmount: !!fromAmount, 
-        hasActions: !!actions 
+        hasAmount: !!fromAmount
       });
       return;
     }
 
-    // Use hardcoded production URL to ensure sharing works
+    if (!actions) {
+      console.error('❌ Farcaster SDK actions not available');
+      return;
+    }
+
+    // Use production URL for sharing
     const appUrl = 'https://monadswap-psi.vercel.app';
     
-    // Create engaging share text with actual swap details (keep it concise for cast limits)
+    // Create engaging share text like the Pokemon app example
     const shareText = `🔥 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} using MonadSwap!
 
-Swap now: ${appUrl} 🚀`;
+"Smooth DeFi trading on Monad Testnet with social price alerts and trending tokens from my network."
+
+Swap tokens now: ${appUrl}`;
     
     try {
-      console.log('📤 Attempting to share swap on Farcaster...', { 
+      console.log('📤 Calling composeCast...', { 
         shareText, 
         appUrl, 
-        textLength: shareText.length 
+        textLength: shareText.length,
+        hasActions: !!actions,
+        actionsType: typeof actions
       });
       
-      // Use proper composeCast API according to MiniApp SDK
+      // Call composeCast with the correct signature
       const result = await actions.composeCast({
         text: shareText,
-        embeds: [appUrl]
+        embeds: [appUrl] // First try with simple string array
       });
       
-      console.log('✅ Share cast composed successfully:', result);
+      console.log('✅ composeCast result:', result);
       
-      // Visual feedback for user
-      const shareButton = document.querySelector('[data-share-button]');
+      // Show success feedback
+      const shareButton = document.querySelector('[data-share-button]') as HTMLButtonElement;
       if (shareButton) {
         const originalText = shareButton.textContent;
         shareButton.textContent = '✅ Shared!';
+        shareButton.style.background = 'linear-gradient(to right, #10b981, #059669)';
         setTimeout(() => {
           shareButton.textContent = originalText;
+          shareButton.style.background = '';
         }, 2000);
       }
       
     } catch (error) {
-      console.error('❌ Error sharing swap:', error);
+      console.error('❌ composeCast error details:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : 'No stack',
+        hasActions: !!actions,
+        actionsKeys: actions ? Object.keys(actions) : 'no actions'
+      });
       
-      // Show error to user
-      const shareButton = document.querySelector('[data-share-button]');
-      if (shareButton) {
-        const originalText = shareButton.textContent;
-        shareButton.textContent = '❌ Share failed';
-        setTimeout(() => {
-          shareButton.textContent = originalText;
-        }, 3000);
+      // Try alternative approach with object format
+      try {
+        console.log('🔄 Trying alternative composeCast format...');
+        const altResult = await actions.composeCast({
+          text: shareText,
+          embeds: [{ url: appUrl }] // Try as object format
+        } as any); // Use any to bypass TS checking
+        console.log('✅ Alternative composeCast succeeded:', altResult);
+        
+        // Show success feedback
+        const shareButton = document.querySelector('[data-share-button]') as HTMLButtonElement;
+        if (shareButton) {
+          const originalText = shareButton.textContent;
+          shareButton.textContent = '✅ Shared!';
+          shareButton.style.background = 'linear-gradient(to right, #10b981, #059669)';
+          setTimeout(() => {
+            shareButton.textContent = originalText;
+            shareButton.style.background = '';
+          }, 2000);
+        }
+        
+      } catch (altError) {
+        console.error('❌ Alternative composeCast also failed:', altError);
+        
+        // Show error feedback
+        const shareButton = document.querySelector('[data-share-button]') as HTMLButtonElement;
+        if (shareButton) {
+          const originalText = shareButton.textContent;
+          shareButton.textContent = '❌ Share failed';
+          shareButton.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+          setTimeout(() => {
+            shareButton.textContent = originalText;
+            shareButton.style.background = '';
+          }, 3000);
+        }
       }
     }
   };
