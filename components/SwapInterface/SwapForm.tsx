@@ -41,6 +41,11 @@ export function SwapForm() {
   const [showGasWarning, setShowGasWarning] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState('');
+  const [successSwapDetails, setSuccessSwapDetails] = useState<{
+    fromAmount: string;
+    fromToken: MonorailToken;
+    toToken: MonorailToken;
+  } | null>(null);
 
   // Monorail tokens and balances
   const { tokens } = useMonorailTokens();
@@ -167,7 +172,17 @@ export function SwapForm() {
   };
 
   const handleSwapSuccess = (txHash: string) => {
-    console.log('🎉 Swap successful, showing success message and resetting amounts');
+    console.log('🎉 Swap successful, showing success message and storing swap details');
+    
+    // Store swap details BEFORE resetting them (for sharing)
+    if (fromToken && toToken && fromAmount) {
+      setSuccessSwapDetails({
+        fromAmount,
+        fromToken,
+        toToken
+      });
+    }
+    
     setSuccessTxHash(txHash);
     setShowSuccessMessage(true);
     
@@ -190,18 +205,21 @@ export function SwapForm() {
     setTimeout(() => {
       setShowSuccessMessage(false);
       setSuccessTxHash('');
+      setSuccessSwapDetails(null);
     }, 20000);
   };
 
   const handleCloseSuccess = () => {
     setShowSuccessMessage(false);
     setSuccessTxHash('');
+    setSuccessSwapDetails(null);
   };
 
-  // Create share cast content for successful swaps
+  // Create share cast content for successful swaps using stored details
   const createShareCast = (): { text: string; embeds: [string] } | null => {
-    if (!fromToken || !toToken || !fromAmount) return null;
+    if (!successSwapDetails) return null;
 
+    const { fromAmount, fromToken, toToken } = successSwapDetails;
     const appUrl = 'https://monadswap-psi.vercel.app';
     const shareText = `🔥 Just swapped ${fromAmount} ${fromToken.symbol} → ${toToken.symbol} using MonadSwap!
 
@@ -346,7 +364,7 @@ Swap tokens now: ${appUrl}`;
             </p>
             
             <p className="text-white/80 text-sm mb-3">
-              Swapped {fromAmount} {fromToken?.symbol} → {toToken?.symbol}
+              Swapped {successSwapDetails?.fromAmount} {successSwapDetails?.fromToken?.symbol} → {successSwapDetails?.toToken?.symbol}
             </p>
             
             <div className="flex items-center gap-2 flex-wrap">
