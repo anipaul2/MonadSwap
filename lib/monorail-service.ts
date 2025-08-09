@@ -90,7 +90,7 @@ export class MonorailService {
           const result = await sdk.wallet.ethProvider.request({
             method: 'eth_sendTransaction',
             params: [{
-              from: userAddress,
+              from: userAddress as `0x${string}`,
               to: tx.to,
               data: tx.data,
               value: tx.value ? `0x${tx.value.toString(16)}` : '0x0',

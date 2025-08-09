@@ -1,6 +1,6 @@
 'use server'
 
-import { sendNotification } from './notifs';
+import { sendFrameNotification } from './notifs';
 import { Redis } from '@upstash/redis';
 
 // Redis client setup
@@ -34,8 +34,7 @@ export async function storeAlert(alert: Omit<PriceAlert, 'id' | 'createdAt'>): P
   await redis.set(
     `user:${alert.userId}:alerts:${alertId}`,
     JSON.stringify(fullAlert),
-    'EX',
-    30 * 24 * 60 * 60 // 30 days expiry
+    { ex: 30 * 24 * 60 * 60 } // 30 days expiry
   );
 
   // Add to user's alert list
@@ -56,7 +55,11 @@ export async function getUserAlerts(userId: string): Promise<PriceAlert[]> {
   for (const alertId of alertIds) {
     const alertData = await redis.get(`user:${userId}:alerts:${alertId}`);
     if (alertData) {
-      alerts.push(JSON.parse(alertData));
+      if (typeof alertData === 'string') {
+        alerts.push(JSON.parse(alertData));
+      } else {
+        alerts.push(alertData as PriceAlert);
+      }
     }
   }
 
@@ -83,14 +86,13 @@ export async function toggleAlert(userId: string, alertId: string, enabled: bool
   const alertData = await redis.get(`user:${userId}:alerts:${alertId}`);
   if (!alertData) return false;
 
-  const alert: PriceAlert = JSON.parse(alertData);
+  const alert: PriceAlert = typeof alertData === 'string' ? JSON.parse(alertData) : alertData as PriceAlert;
   alert.enabled = enabled;
 
   await redis.set(
     `user:${userId}:alerts:${alertId}`,
     JSON.stringify(alert),
-    'EX',
-    30 * 24 * 60 * 60
+    { ex: 30 * 24 * 60 * 60 }
   );
 
   console.log('🔔 Toggled alert:', { alertId, userId, enabled });
@@ -177,15 +179,18 @@ async function checkSingleAlert(alert: PriceAlert): Promise<void> {
       // Send notification
       const message = `🚨 Price Alert: ${alert.tokenSymbol} is now $${currentPrice.toFixed(6)} (${alert.condition} your target of $${alert.targetPrice})`;
       
-      await sendNotification(alert.userId, message);
+      await sendFrameNotification({
+        fid: parseInt(alert.userId),
+        title: "Price Alert",
+        body: message
+      });
 
       // Update lastTriggered timestamp
       alert.lastTriggered = new Date().toISOString();
       await redis.set(
         `user:${alert.userId}:alerts:${alert.id}`,
         JSON.stringify(alert),
-        'EX',
-        30 * 24 * 60 * 60
+        { ex: 30 * 24 * 60 * 60 }
       );
 
       console.log('✅ Notification sent and alert updated');

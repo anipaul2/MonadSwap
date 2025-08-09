@@ -88,7 +88,7 @@ export async function getUserFollowing(fid: string): Promise<NeynarUser[]> {
     const data: any = await response.json();
     console.log(`📊 Raw Neynar response:`, JSON.stringify(data, null, 2));
     console.log(`✅ Fetched ${data.users?.length || 0} following for FID ${fid}`);
-    console.log('👥 Sample users:', data.users?.slice(0, 3).map(u => u.username));
+    console.log('👥 Sample users:', data.users?.slice(0, 3).map((u: any) => u.username));
     return data.users || [];
   } catch (error) {
     console.error('❌ Error fetching following:', error);

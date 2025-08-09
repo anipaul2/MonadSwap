@@ -89,7 +89,7 @@ export function useMonorailTokenBalance(tokenAddress: string) {
     balance: tokenBalance?.balance || '0',
     monValue: tokenBalance?.mon_value || '0',
     usdValue: tokenBalance ? 
-      (parseFloat(tokenBalance.balance) * parseFloat(tokenBalance.usd_per_token)).toString() : 
+      (parseFloat(tokenBalance.balance || '0') * parseFloat(tokenBalance.usd_per_token || '0')).toString() : 
       '0',
     isLoading: false
   };

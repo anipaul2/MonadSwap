@@ -110,7 +110,7 @@ export function useMonorailSwap(): UseMonorailSwapReturn {
     if (!effectiveWalletClient && address) {
       console.log('🔧 No wagmi wallet client, trying Farcaster SDK...');
       try {
-        effectiveWalletClient = monorailService.createFarcasterWalletClient(address);
+        effectiveWalletClient = monorailService.createFarcasterWalletClient(address) as any;
         console.log('✅ Created Farcaster wallet client');
       } catch (error) {
         console.error('❌ Failed to create Farcaster wallet client:', error);
