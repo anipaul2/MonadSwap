@@ -370,7 +370,7 @@ Swap tokens now: ${appUrl}`;
             <div className="flex items-center gap-2 flex-wrap">
               {successTxHash && (
                 <a 
-                  href={`https://testnet.monadexplorer.com/tx/${successTxHash}`}
+                  href={`https://monadvision.com/tx/${successTxHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white/90 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
