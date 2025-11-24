@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAccount, useWalletClient, useSwitchChain } from 'wagmi';
 import { ChevronDownIcon, ArrowUpDownIcon, XIcon } from 'lucide-react';
 import { useFrame } from '@/components/farcaster-provider';
-import { MONAD_TESTNET_CHAIN_ID } from '@/lib/constants';
+import { MONAD_MAINNET_CHAIN_ID } from '@/lib/constants';
 import { TokenSelector } from './TokenSelector';
 import { SwapButton } from './SwapButton';
 import { WalletStatus } from './WalletStatus';
