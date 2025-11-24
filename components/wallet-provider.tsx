@@ -1,9 +1,33 @@
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, WagmiProvider, createConfig } from 'wagmi'
-import { monadTestnet } from 'wagmi/chains'
+import { defineChain } from 'viem'
 import { injected } from 'wagmi/connectors'
 import { sdk } from '@farcaster/miniapp-sdk'
+
+const monadMainnet = defineChain({
+  id: 143, // Monad mainnet chain ID
+  name: 'Monad',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Monad',
+    symbol: 'MON',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-mainnet.monadinfra.com'],
+    },
+    public: {
+      http: ['https://rpc3.monad.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: { 
+      name: 'MonadVision', 
+      url: 'https://monadvision.com' 
+    },
+  },
+})
 
 // Create connectors based on environment
 const createConnectors = () => {
