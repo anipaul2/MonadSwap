@@ -223,7 +223,7 @@ export async function enrichWithPriceData(tokenMentions: TokenMention[]): Promis
       // Try to get token data from Monorail (optional)
       let tokenData = null;
       try {
-        const response = await fetch(`https://testnet-api.monorail.xyz/v1/tokens?find=${mention.symbol}`);
+        const response = await fetch(`https://api.monorail.xyz/v2/token?find=${mention.symbol}`);
         if (response.ok) {
           const tokens = await response.json();
           tokenData = tokens.find((t: any) => t.symbol === mention.symbol);
