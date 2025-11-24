@@ -4,8 +4,8 @@ import { sdk } from '@farcaster/miniapp-sdk';
 // Monorail Configuration (using Next.js API proxy to avoid CORS issues)
 // Updated: 2025-01-27 - Now using proxy routes
 export const MONORAIL_CONFIG = {
-  pathfinderUrl: '/api/monorail/pathfinder',
-  dataUrl: '/api/monorail',
+  pathfinderUrl: 'https://pathfinder.monorail.xyz/v4',
+  dataUrl: 'https://api.monorail.xyz/v2',
   appId: '2110175452158992', // Your Monorail App ID
   defaultSlippage: 1000, // 10% in basis points (increased for testnet volatile pairs)
   defaultDeadline: 600 // 10 minutes (increased for better execution)
