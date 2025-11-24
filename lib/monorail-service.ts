@@ -82,7 +82,7 @@ export class MonorailService {
 
     return {
       account: { address: userAddress as `0x${string}` },
-      chain: { id: 10143 },
+      chain: { id: 143 },
       sendTransaction: async (tx: any) => {
         console.log('📤 Sending transaction via Farcaster SDK:', tx);
         
