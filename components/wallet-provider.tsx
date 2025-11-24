@@ -25,9 +25,9 @@ const createConnectors = () => {
 };
 
 export const config = createConfig({
-  chains: [monadTestnet],
+  chains: [monadMainnet],
   transports: {
-    [monadTestnet.id]: http('https://testnet-rpc.monad.xyz'),
+    [monadMainnet.id]: http('https://rpc-mainnet.monadinfra.com'),
   },
   connectors: createConnectors(),
 })
