@@ -103,7 +103,7 @@ export async function toggleAlert(userId: string, alertId: string, enabled: bool
 async function getCurrentPrice(tokenAddress: string): Promise<number | null> {
   try {
     // Use Monorail API to get current token price
-    const response = await fetch(`https://testnet-api.monorail.xyz/v1/tokens/${tokenAddress}/price`, {
+    const response = await fetch(`https://api.monorail.xyz/v2/tokens/${tokenAddress}/price`, {
       headers: {
         'Content-Type': 'application/json',
       },
