@@ -57,8 +57,8 @@ export function SwapForm() {
 
   // Switch to Monad testnet if needed
   useEffect(() => {
-    if (isConnected && chain?.id !== MONAD_TESTNET_CHAIN_ID) {
-      switchChain({ chainId: MONAD_TESTNET_CHAIN_ID });
+    if (isConnected && chain?.id !== MONAD_MAINNET_CHAIN_ID) {
+      switchChain({ chainId: MONAD_MAINNET_CHAIN_ID });
     }
   }, [isConnected, chain, switchChain]);
 
