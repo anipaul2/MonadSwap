@@ -9,8 +9,8 @@ if (!APP_URL) {
 export { APP_URL };
 
 // Monad Testnet Configuration
-export const MONAD_TESTNET_CHAIN_ID = 10143;
-export const MONAD_RPC_URL = process.env.NEXT_PUBLIC_MONAD_RPC_URL || "https://testnet-rpc.monad.xyz";
+export const MONAD_MAINNET_CHAIN_ID = 143;
+export const MONAD_RPC_URL = process.env.NEXT_PUBLIC_MONAD_RPC_URL || "https://rpc-mainnet.monadinfra.com";
 
 // NOTE: Kuru contracts removed - MonadSwap now uses Monorail exclusively
 
