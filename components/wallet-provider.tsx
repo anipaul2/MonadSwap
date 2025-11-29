@@ -3,10 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, WagmiProvider, createConfig } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { sdk } from '@farcaster/miniapp-sdk'
-import { type Chain } from 'viem'
+import { defineChain } from 'viem'
 
 // Define Monad Mainnet as a custom chain
-export const monadMainnet: Chain = {
+export const mainnet = defineChain({
   id: 143,
   name: 'Monad Mainnet',
   nativeCurrency: {
@@ -16,7 +16,7 @@ export const monadMainnet: Chain = {
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc-mainnet.monadinfra.com'],
+      http: ['https://rpc.monad.xyz'],
     },
   },
   blockExplorers: {
@@ -25,7 +25,12 @@ export const monadMainnet: Chain = {
       url: 'https://monadvision.com/',
     },
   },
-} 
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+    },
+  },
+}) 
 
 // Create connectors based on environment
 const createConnectors = () => {
@@ -47,9 +52,9 @@ const createConnectors = () => {
 };
 
 export const config = createConfig({
-  chains: [monadMainnet],
+  chains: [mainnet],
   transports: {
-    [monadMainnet.id]: http('https://rpc-mainnet.monadinfra.com'),
+    [mainnet.id]: http('https://rpc.monad.xyz'),
   },
   connectors: createConnectors(),
 })
