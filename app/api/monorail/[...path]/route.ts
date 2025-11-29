@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const MONORAIL_BASE_URL = 'https://api.monorail.xyz/v2';
-const PATHFINDER_BASE_URL = ' https://pathfinder.monorail.xyz/v4';
+const PATHFINDER_BASE_URL = 'https://pathfinder.monorail.xyz/v4';
 
 export async function GET(
   request: NextRequest,
