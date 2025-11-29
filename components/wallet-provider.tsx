@@ -3,10 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, WagmiProvider, createConfig } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { sdk } from '@farcaster/miniapp-sdk'
-import { defineChain } from 'viem'
+import { type Chain } from 'viem'
 
 // Define Monad Mainnet as a custom chain
-export const monadMainnet = defineChain({
+export const monadMainnet = {
   id: 143,
   name: 'Monad Mainnet',
   nativeCurrency: {
@@ -29,7 +29,7 @@ export const monadMainnet = defineChain({
     },
   },
   testnet: false,
-})
+} as const satisfies Chain
 
 // Create connectors based on environment
 const createConnectors = () => {
