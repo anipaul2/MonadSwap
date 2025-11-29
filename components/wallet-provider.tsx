@@ -6,10 +6,9 @@ import { sdk } from '@farcaster/miniapp-sdk'
 import { type Chain } from 'viem'
 
 // Define Monad Mainnet as a custom chain
-export const monadMainnet = {
+export const monadMainnet: Chain = {
   id: 143,
   name: 'Monad Mainnet',
-  network: 'monad-mainnet',
   nativeCurrency: {
     name: 'Monad',
     symbol: 'MON',
@@ -19,9 +18,6 @@ export const monadMainnet = {
     default: {
       http: ['https://rpc-mainnet.monadinfra.com'],
     },
-    public: {
-      http: ['https://rpc2.monad.xyz'],
-    },
   },
   blockExplorers: {
     default: {
@@ -29,8 +25,7 @@ export const monadMainnet = {
       url: 'https://monadvision.com/',
     },
   },
-  testnet: false,
-} as const satisfies Chain
+} 
 
 // Create connectors based on environment
 const createConnectors = () => {
