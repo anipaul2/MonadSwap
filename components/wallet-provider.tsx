@@ -9,6 +9,7 @@ import { type Chain } from 'viem'
 export const monadMainnet = {
   id: 143,
   name: 'Monad Mainnet',
+  network: 'monad-mainnet',
   nativeCurrency: {
     name: 'Monad',
     symbol: 'MON',
